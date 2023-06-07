@@ -1,67 +1,88 @@
-import { Table as AntdTable } from 'antd'; import React from 'react';
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../../store';
+import { Table as AntdTable } from "antd";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { useMemo, useState } from 'react';
+import styles from './styles .module.sass'
 
 
-interface DataType { id: string; name: string; quantity: number; currency: string; price: number; deliveryDate: string }
+interface DataType {
+    id: string;
+    name: string;
+    quantity: number;
+    currency: string;
+    price: number;
+    deliveryDate: string;
+}
 
 export const Table: React.FC = () => {
-    // const dataSource: DataType[] = [{
-    //     key: '1',
-    //     name: 'John Brown',
-    //     quantity: 32,
-    //     currency: 'USD',
-    //     price: 999,
-    //     deliveryDate: '2023-05-24'
-    // }, {
-    //     key: '2',
-    //     name: 'Jim Green',
-    //     quantity: 42,
-    //     currency: 'RUB',
-    //     price: 999,
-    //     deliveryDate: '2023-05-22'
-    // },];
-
+    const [selectedData, setSelectedData] = useState<any[]>([])
     const columns = [
         {
-            title: 'Имя',
-            dataIndex: 'name',
-            key: 'name',
+            title: "Имя",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a: DataType, b: DataType) => a.name.localeCompare(b.name),
         },
         {
-            title: 'Количество',
-            dataIndex: 'quantity',
-            key: 'quantity',
+            title: "Количество",
+            dataIndex: "quantity",
+            key: "quantity",
+            sorter: (a: DataType, b: DataType) => a.quantity - b.quantity,
         },
         {
-            title: 'Цена',
-            dataIndex: 'price',
-            key: 'price',
+            title: "Цена",
+            dataIndex: "price",
+            key: "price",
+            sorter: (a: DataType, b: DataType) => a.price - b.price,
         },
         {
-            title: 'Дата',
-            dataIndex: 'deliveryDate',
-            key: 'deliveryDate',
+            title: "Дата",
+            dataIndex: "deliveryDate",
+            key: "deliveryDate",
+            sorter: (a: DataType, b: DataType) =>
+                new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime(),
         },
         {
-            title: 'Валюта',
-            dataIndex: 'currency',
-            key: 'currency',
-        }
+            title: "Валюта",
+            dataIndex: "currency",
+            key: "currency",
+            sorter: (a: DataType, b: DataType) =>
+                a.currency.localeCompare(b.currency),
+        },
     ];
-    const data: DataType[] = useSelector((state: RootState) => state.objects.objects)
+    let data: DataType[] = useSelector(
+        (state: RootState) => state.objects.objects
+    );
+
+    data = [...data];
+
+    data.sort(
+        (a: DataType, b: DataType) =>
+            new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime()
+    );
+
+    const totalQuantity = useMemo(() => {
+        return selectedData.reduce((acc, row) => acc + row.quantity, 0);
+    }, [selectedData]);
+    console.log(totalQuantity)
+
+
     return (
-        <AntdTable
-        dataSource={data}
-        columns={columns}
-        pagination={false}
-        rowSelection={{
-          type: 'checkbox',
-          onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-            console.log(selectedRowKeys, selectedRows);
-          },
-        }}
-        rowKey="id"
-      />
+        <div>
+            <AntdTable
+                dataSource={data}
+                columns={columns}
+                pagination={false}
+                rowSelection={{
+                    type: "checkbox",
+                    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+                        console.log(selectedRowKeys, selectedRows);
+                        setSelectedData(selectedRows)
+                    },
+                }}
+                rowKey="id"
+            />
+            <div>Общее количество: {totalQuantity}</div>
+        </div>
     );
 };
