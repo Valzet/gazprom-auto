@@ -1,2 +1,12 @@
 .list
     display: flex
+    max-width: 100%
+    flex-wrap: wrap
+
+.span
+    white-space: break-spaces
+    display: block
+
+
+.span:not(:last-child)::after
+    content: ", "
