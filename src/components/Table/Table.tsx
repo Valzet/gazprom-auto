@@ -65,7 +65,7 @@ export const Table: React.FC = () => {
                 pagination={false}
                 rowSelection={{
                     type: "checkbox",
-                    onChange: (selectedRowKeys: React.Key[], selectedRows: ObjectData[]) => {
+                    onChange: (_selectedRowKeys: React.Key[], selectedRows: ObjectData[]) => {
                         setSelectedData(selectedRows)
                     }
                 }}
