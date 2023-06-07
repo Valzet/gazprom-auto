@@ -1,17 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-interface ObjectData {
-  id: string;
-  name: string;
-  quantity: number;
-  deliveryDate: string;
-  price: number;
-  currency: string;
-}
-
-interface ObjectState {
-  objects: ObjectData[];
-}
+import { ObjectData, ObjectState } from "../types/objectTypes";
 
 const objectSlice = createSlice({
   name: "cards",

@@ -1,72 +1,63 @@
-import { Table as AntdTable } from "antd";
-import { useSelector } from "react-redux";
+import { Table as AntdTable, Button } from "antd";
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from "../../store";
 import { useMemo, useState } from 'react';
 import styles from './styles .module.sass'
+import { ModalComponent } from "../Modal/ModalComponent";
+import { ObjectData, ObjectState } from "../../types/objectTypes";
+import { openModal } from "../../store/modalSlice";
 
-
-interface DataType {
-    id: string;
-    name: string;
-    quantity: number;
-    currency: string;
-    price: number;
-    deliveryDate: string;
-}
 
 export const Table: React.FC = () => {
-    const [selectedData, setSelectedData] = useState<any[]>([])
+    const [selectedData, setSelectedData] = useState<ObjectData[]>([])
+    const dispatch = useDispatch()
     const columns = [
         {
             title: "Имя",
             dataIndex: "name",
             key: "name",
-            sorter: (a: DataType, b: DataType) => a.name.localeCompare(b.name),
+            sorter: (a: ObjectData, b: ObjectData) => a.name.localeCompare(b.name),
         },
         {
             title: "Количество",
             dataIndex: "quantity",
             key: "quantity",
-            sorter: (a: DataType, b: DataType) => a.quantity - b.quantity,
+            sorter: (a: ObjectData, b: ObjectData) => a.quantity - b.quantity,
         },
         {
             title: "Цена",
             dataIndex: "price",
             key: "price",
-            sorter: (a: DataType, b: DataType) => a.price - b.price,
+            sorter: (a: ObjectData, b: ObjectData) => a.price - b.price,
         },
         {
             title: "Дата",
             dataIndex: "deliveryDate",
             key: "deliveryDate",
-            sorter: (a: DataType, b: DataType) =>
+            sorter: (a: ObjectData, b: ObjectData) =>
                 new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime(),
         },
         {
             title: "Валюта",
             dataIndex: "currency",
             key: "currency",
-            sorter: (a: DataType, b: DataType) =>
+            sorter: (a: ObjectData, b: ObjectData) =>
                 a.currency.localeCompare(b.currency),
         },
     ];
-    let data: DataType[] = useSelector(
+    let data: ObjectData[] = useSelector(
         (state: RootState) => state.objects.objects
     );
 
     data = [...data];
-
     data.sort(
-        (a: DataType, b: DataType) =>
+        (a: ObjectData, b: ObjectData) =>
             new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime()
     );
 
     const totalQuantity = useMemo(() => {
         return selectedData.reduce((acc, row) => acc + row.quantity, 0);
     }, [selectedData]);
-    console.log(totalQuantity)
-
-
     return (
         <div>
             <AntdTable
@@ -75,14 +66,16 @@ export const Table: React.FC = () => {
                 pagination={false}
                 rowSelection={{
                     type: "checkbox",
-                    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-                        console.log(selectedRowKeys, selectedRows);
+                    onChange: (selectedRowKeys: React.Key[], selectedRows: ObjectData[]) => {
                         setSelectedData(selectedRows)
                     },
                 }}
                 rowKey="id"
             />
             <div>Общее количество: {totalQuantity}</div>
+            {totalQuantity >= 1 && <Button type="primary" onClick={() => dispatch(openModal())}>Аннулировать</Button>}
+            
+            <ModalComponent data={selectedData} />
         </div>
     );
 };
